@@ -1,0 +1,29 @@
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+#mapa {
+    display: grid;
+    grid-template-columns: repeat(200, 1fr);
+    width: 400px;
+    height: 400px;
+}
+.agua {
+    background-image: url('../assets/agua.png'); /* Imagen para agua */
+}
+.tierra {
+    background-image: url('../assets/tierra.png'); /* Imagen para tierra */
+}
+.pierdra {
+    background-image: url('../assets/piedra.png'); /* Imagen para piedra */
+}
+/* Estilo adicional para las imágenes dentro de los bloques */
+.bloque{
+    width: 2px; /* Las imágenes llenan el bloque */
+    height: 2px; /* Las imágenes llenan el bloque */
+    margin: 0%;
+}

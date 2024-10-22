@@ -1,25 +1,31 @@
-<!DOCTYPE html>
-<html lang="es">
-
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mapa procedural</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/public/css/style.css">
 </head>
 
 <body>
-    <h1>Salida del primer mapa</h1>
 
-    <button id="generarMapa">Generar Mapa</button>
-
-    <pre id="output"></pre> <!-- Área donde se mostrará la salida -->
-    <div id="mapa"></div> <!-- Contenedor para el mapa -->
-
-
-
-    
-    
+    <div class="parent">
+        <div class="div1">
+            <h1>Salida del mapa</h1>
+            <label for="tipoMapa">Selecciona el tipo de mapa:</label>
+            <select id="tipoMapa">
+              <option value="inicial" id="mapasin">Mapa 1: Mapa desde cero</option>
+              <option value="suavizar" id="mapasmo">Mapa 2: Mapa de suavizado (70 veces)</option>
+              <option value="relieve" id="maparel">Mapa 3: Mapa de relieve </option>
+              <option value="temperatura" id="mapatem">Mapa 4: Mapa de temperatura</option>
+              <option value="precipitacion" id="mapapre">Mapa 5: Mapa de precipitación</option>
+              <option value="biomas" id="mapabio">Mapa 6: Mapa de biomas</option>
+            </select>
+            <button id="generarMapa">Generar Mapa</button>
+        </div>
+        <div class="div2">
+            <div id="mapa"></div> <!-- Contenedor para el mapa -->
+        </div>
+        </div>
+  
     <script src="/mapaproc.js"></script> <!-- Archivo JS con la lógica -->  
 </body>
 

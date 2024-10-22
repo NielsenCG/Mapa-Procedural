@@ -1,29 +1,241 @@
+/* Reinicio de estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5f5f5;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
-    background-color: #f0f0f0;
 }
+
+/* Contenedor principal */
+.parent {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 20px;
+    width: 90vw;
+    height: 90vh;
+}
+
+/* Estilos para el menú (div1) */
+.div1 {
+    background-color: #9C6E45; /* Fondo marrón suave */
+    padding: 30px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Sombra más sutil y extendida */
+    border-right: 3px solid #7A5331; /* Borde entre el menú y el mapa */
+}
+
+/* Cargamos la fuente Poppins desde Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
+
+/* Título del menú - Salida del mapa */
+.div1 h1 {
+    font-family: 'Poppins', sans-serif; /* Nueva fuente estilizada */
+    font-size: 26px; /* Tamaño ligeramente más grande */
+    color: #227f0b; /* Verde */
+    text-align: left;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4); /* Sombra para darle profundidad */
+    padding: 10px;
+    border: 2px solid #227f0b; /* Añadimos un contorno del mismo color */
+    border-radius: 8px; /* Bordes suaves */
+    background-color: #F5F3EF; /* Fondo blanco suave */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra alrededor */
+    text-transform: uppercase; /* Texto en mayúsculas para mayor impacto */
+}
+
+/* Estilos para la etiqueta y el selector del tipo de mapa */
+label {
+    font-size: 16px;
+    color: #F5F3EF;
+    margin-bottom: 10px;
+}
+
+select {
+    width: 100%;
+    padding: 12px;
+    font-size: 14px;
+    background-color: #6E4C29; /* Marrón oscuro */
+    color: #FFF8E7; /* Color claro para el texto */
+    border: none;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+select:hover, select:focus {
+    background-color: #8C5E3A; /* Cambia a un tono más claro al seleccionar */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Sombra al hacer hover/focus */
+    outline: none;
+}
+
+/* Botón de generar mapa */
+#generarMapa {
+    padding: 12px 25px;
+    font-size: 16px;
+    background-color: #8C5E3A;
+    color: #FFF8E7;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+#generarMapa:hover {
+    background-color: #A77E4F; /* Un tono más claro en hover */
+    transform: scale(1.05); /* Efecto de hover */
+}
+
+#generarMapa:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 92, 61, 0.4);
+}
+
+/* Contenedor del mapa */
+.div2 {
+    background-color: #B78C56;
+    padding: 20px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Sombra ligera */
+    border: 3px solid #7A5331;
+}
+
+/* Estilos del contenedor donde se visualizará el mapa */
 #mapa {
+    width: 100%;
+    height: 100%;
+    max-width: 70vh; /* Mantiene el mapa cuadrado */
+    max-height: 70vh;
+    background-color: #63452E;
     display: grid;
     grid-template-columns: repeat(200, 1fr);
-    width: 400px;
-    height: 400px;
+    gap: 0;
+    border-radius: 10px;
 }
+
+/* Estilos para los bloques dentro del mapa */
+.bloque {
+    width: 100%;
+    aspect-ratio: 1;
+    background-size: cover;
+    background-position: center;
+    transition: transform 3s ease, box-shadow 0.3s ease;
+}
+
+.bloque:hover {
+    transform: scale(30); /* Se amplía ligeramente en hover */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Sombra suave al hover */
+    z-index: 1;
+    cursor: pointer;
+}
+
+/* Estilos para los biomas */
 .agua {
-    background-image: url('../assets/agua.png'); /* Imagen para agua */
+    background-image: url('/public/assets/agua.png');
 }
 .tierra {
-    background-image: url('../assets/tierra.png'); /* Imagen para tierra */
+    background-image: url('/public/assets/tierra.png');
 }
-.pierdra {
-    background-image: url('../assets/piedra.png'); /* Imagen para piedra */
+.piedra {
+    background-image: url('/public/assets/piedra.png');
 }
-/* Estilo adicional para las imágenes dentro de los bloques */
-.bloque{
-    width: 2px; /* Las imágenes llenan el bloque */
-    height: 2px; /* Las imágenes llenan el bloque */
-    margin: 0%;
+
+.acantilado{
+    background-image: url('/public/assets/acantilado.png');
 }
+.bosque {
+    background-image: url('/public/assets/bosque.png');
+}
+.corales {
+    background-image: url('/public/assets/corales.png');
+}
+.costa_templado {
+    background-image: url('/public/assets/costa_templado.png');
+}
+.costa_tropical {
+    background-image: url('/public/assets/costa_tropical.png');
+}
+.desierto {
+    background-image: url('/public/assets/desierto.png');
+}
+.estepa_fria {
+    background-image: url('/public/assets/estepa_fria.png');
+}
+.mar_polar {
+    background-image: url('/public/assets/mar_polar.png');
+}
+.mar_templado {
+    background-image: url('/public/assets/mar_templado.png');
+}
+.mar_tropical {
+    background-image: url('/public/assets/mar_tropical.png'); 
+}
+.meseta {
+    background-image: url('/public/assets/meseta.png'); 
+}
+.montaña_glaciar {
+    background-image: url('/public/assets/montaña_glaciar.png'); 
+}
+.montaña_nevada {
+    background-image: url('/public/assets/montaña_nevada.png'); 
+}
+.montaña {
+    background-image: url('/public/assets/montaña.png'); 
+}
+.oceano_polar {
+    background-image: url('/public/assets/oceano_polar.png'); 
+}
+.oceano_templado {
+    background-image: url('/public/assets/oceano_templado.png'); 
+}
+.oceano_tropical {
+    background-image: url('/public/assets/oceano_tropical.png'); 
+}
+.pantano {
+    background-image: url('/public/assets/pantano.png'); 
+}
+.playa {
+    background-image: url('/public/assets/playa.png'); 
+}
+.pradera {
+    background-image: url('/public/assets/pradera.png'); 
+}
+.sabana{
+    background-image: url('/public/assets/sabana.png');
+}
+.selva {
+    background-image: url('/public/assets/selva.png'); 
+}
+.taiga {
+    background-image: url('/public/assets/taiga.png'); 
+}
+.tundra {
+    background-image: url('/public/assets/tundra.png'); 
+}
+.volcan {
+    background-image: url('/public/assets/volcan.png'); 
+}
+.zona_muerta {
+    background-image: url('/public/assets/zona_muerta.png'); 
+}
+
+
+
+
+

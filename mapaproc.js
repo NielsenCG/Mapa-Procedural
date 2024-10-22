@@ -75,7 +75,7 @@ class StackVM {
         this.smoothMapPrecipitacion(arg); // Aplica el suavizado al mapa
         break;
       case 'COORDSGENERATOR':
-        this.cordsGenerator();
+        this.cordsGenerator(arg);
         break;
       case 'BIOMAGENERATOR':
         this.generateBiomeMap();
@@ -310,48 +310,41 @@ class StackVM {
   }
 
   // Método para expandir las coordenadas desde el centro en espiral
-cordsGenerator() {
-  const directions = [
-    [0, 1],  // Derecha
-    [1, 0],  // Abajo
-    [0, -1], // Izquierda
-    [-1, 0]  // Arriba
-  ];
+  cordsGenerator(count) {
+    this.currentRow = 0;
+    this.currentCol = 0;
+    let x = -99; // Inicializa la coordenada X en -99
+    let y = 99;  // Inicializa la coordenada Y en 99
 
-  let x = 0;  // Centro de la cuadrícula
-  let y = 0;
-  let steps = 1;           // Cuántos pasos en una dirección antes de girar
-  let currentDir = 0;      // Índice de la dirección actual en 'directions'
+    for (let i = 0; i < count; i++) {
 
-  this.stack.push([x, y]); // Empieza desde el centro
+      // Empuja el número a la pila
+      this.stack.push([x, y]);
 
-  // Usamos un objeto para mapear las coordenadas en este caso
-  this.mapcor[`${x},${y}`] = this.stack[this.stack.length - 1]; // Marca el punto central
-
-  while (this.stack.length < (201 * 201)) { // Hasta llenar toda la cuadrícula (-100, -100) a (100, 100)
-    for (let i = 0; i < 2; i++) { // Dos segmentos de la misma longitud (derecha y abajo, luego izquierda y arriba)
-      for (let j = 0; j < steps; j++) {
-        // Mover en la dirección actual
-        x += directions[currentDir][0];
-        y += directions[currentDir][1];
-
-        // Asegurarse de que las coordenadas estén dentro del rango -100 a 100
-        if (x >= -100 && x <= 100 && y >= -100 && y <= 100) {
-          this.stack.push([x, y]);   // Añadir las coordenadas a la pila
-          this.mapcor[`${x},${y}`] = this.stack[this.stack.length - 1]; // Marca la posición
-        }
-      }
-      // Cambiar de dirección (en el orden derecha, abajo, izquierda, arriba)
-      currentDir = (currentDir + 1) % 4;
-    }
-    steps++; // Aumentar la cantidad de pasos en cada dirección después de dos giros
-  }
-
-    // Limpiar la pila si es necesario
-    while (this.stack.length > 0) {
+      // Insertar el número en el mapa en la posición actual
+      this.mapcor[this.currentRow][this.currentCol] = this.stack[this.stack.length - 1];
       this.stack.pop();
+
+      // Avanzar al siguiente punto del mapa
+      this.currentCol++;
+      x++; // Incrementar coordenada X al moverse a la derecha
+
+      if (this.currentCol >= 200) {
+        this.currentCol = 0;  // Volver a la primera columna
+        this.currentRow++;    // Avanzar a la siguiente fila
+        x = -99;  // Reiniciar coordenada X a -99 al inicio de una nueva fila
+        y += -1;      // Decrementar coordenada Y al moverse hacia abajo
+      }
+
+      // Si el mapa está lleno, parar
+      if (this.currentRow >= 200) {
+        this.printToOutput("El mapa está lleno. no continuar");
+        return;
+      }
     }
   }
+
+  
   // Método para asignar el estado del relieve
   getReliefState(valor) {
     if (valor <= -3500) {
@@ -440,20 +433,14 @@ const vm = new StackVM();
 
 // Cargar un programa en la máquina virtual que utiliza FILLRELIEVE y SMOOTH
 vm.loadProgram([
-  ['PUSH', 5],             // Empuja el número 5 en la pila
-  ['PUSH', 3],             // Empuja el número 3 en la pila
-  ['ADD'],                 // Suma los dos valores en la cima de la pila (5 + 3)
-  ['FILLRELIEVE', 40000],  // Llena el mapa con 40,000 números aleatorios entre -100,000 y 100,000
+  ['FILLRELIEVE', 40000],
   ['SMOOTHRELIEVE', 70],
   ['FILLTEMPERATURA', 40000], 
   ['SMOOTHTEMPERATURA', 70], 
   ['FILLPRECIPITACION', 40000], 
   ['SMOOTHPRECIPITACION', 70],
-  ['COORDSGENERATOR'], 
-  ['BIOMAGENERATOR'],     // Aplica el suavizado 3 veces
-  ['PUSH', 2],             // Empuja el número 2 en la pila
-  ['MUL'],                 // Multiplica el número en la cima de la pila por 2
-  ['PRINT']                // Imprime el resultado
+  ['COORDSGENERATOR', 40000], 
+  ['BIOMAGENERATOR'],
 ]);
 
 // Ejecutar el programa
@@ -461,7 +448,7 @@ vm.run();
 
 // Opcional: Imprimir el mapa suavizado (por consola)
 console.log("Mapa 200x200 de números suavizados:");
-console.log(vm.mapbio)
+console.log(vm.mapcor)
 
 
 // Esperamos a que el DOM esté completamente cargado
@@ -516,7 +503,8 @@ document.addEventListener("DOMContentLoaded", function() {
     for (let i = 0; i < vm.mapsin.length; i++) {
         for (let j = 0; j < vm.mapsin[i].length; j++) {
             let tipo = '';
-
+            let altitud = vm.mapsmo[i][j]
+            let coordenada = vm.mapcor[i][j]
             if (vm.mapsin[i][j] < 0) {
                 tipo = 'agua'; // Valor negativo es agua
             } else if (vm.mapsin[i][j] <= 3000) {
@@ -524,7 +512,7 @@ document.addEventListener("DOMContentLoaded", function() {
             } else {
                 tipo = 'piedra'; // Valor mayor que 3000 es piedra
             }
-            bloquesHTML += `<div class="bloque ${tipo}"></div>`;
+            bloquesHTML += `<div class="bloque ${tipo}" relieve=${altitud} coordenadas=${coordenada}></div>`;
         }
     }
 
@@ -540,7 +528,8 @@ document.addEventListener("DOMContentLoaded", function() {
     for (let i = 0; i < vm.mapsmo.length; i++) {
         for (let j = 0; j < vm.mapsmo[i].length; j++) {
             let tipo = '';
- 
+            let altitud = vm.mapsmo[i][j]
+            let coordenada = vm.mapcor[i][j]
             if (vm.mapsmo[i][j] < 0) {
                 tipo = 'agua'; // Valor negativo es agua
             } else if (vm.mapsmo[i][j] <= 3000) {
@@ -548,7 +537,7 @@ document.addEventListener("DOMContentLoaded", function() {
             } else {
                 tipo = 'piedra'; // Valor mayor que 3000 es piedra
             }
-            bloquesHTML += `<div class="bloque ${tipo}"></div>`;
+            bloquesHTML += `<div class="bloque ${tipo}" relieve=${altitud} coordenadas=${coordenada}></div>`;
         }
     }
 
@@ -565,7 +554,8 @@ function actualizarMapaRelieve() {
       for (let j = 0; j < vm.mapsmo[i].length; j++) {
           let valor = vm.mapsmo[i][j];
           let colorFondo;
-
+          let coordenada = vm.mapcor[i][j]
+          let altitud = vm.mapsmo[i][j]
           // Determinar color de fondo basado en el valor
           if (valor < -3500) {
               colorFondo = '#00008b'; // Azul oscuro
@@ -577,7 +567,7 @@ function actualizarMapaRelieve() {
             colorFondo = '#90ee90'; // Verde Claro
           }else if (valor < 1500) {
               colorFondo = '#00ff00'; // Verde
-          } else if (valor < 2500) {
+          } else if (valor < 3000) {
               colorFondo = '#ffff00'; // Amarillo
           } else if (valor < 4000) {
               colorFondo = '#ff8c00'; // Naranja
@@ -590,7 +580,7 @@ function actualizarMapaRelieve() {
           }
 
           // Generar el HTML para el bloque con el color de fondo
-          bloquesHTML += `<div class="bloque" style="background-color:${colorFondo};"></div>`;
+          bloquesHTML += `<div class="bloque" style="background-color:${colorFondo};" relieve=${altitud} coordenadas=${coordenada}></div>`;
       }
   }
 
@@ -608,24 +598,25 @@ function actualizarMapaTemperatura() {
       for (let j = 0; j < vm.maptem[i].length; j++) {
           let valor = vm.maptem[i][j]; // Valor de temperatura
           let colorFondo;
-
+          let coordenada = vm.mapcor[i][j]
+          let temperatura = vm.maptem[i][j]
           // Determinar color de fondo basado en el valor de temperatura
           if (valor < -30) {
-              colorFondo = '#00008b'; // Azul oscuro para temperaturas extremadamente bajas (< -30°C)
+              colorFondo = '#00008b'; // Azul oscuro para temperaturas extremadamente bajas (< -31°C)
           } else if (valor < 0) {
-              colorFondo = '#00bfff'; // Azul claro para temperaturas bajas (de -30°C a 0°C)
+              colorFondo = '#00bfff'; // Azul claro para temperaturas bajas (de -30°C a -1°C)
           } else if (valor < 25) {
-              colorFondo = '#00ff00'; // Verde para temperaturas templadas (de 0°C a 15°C)
+              colorFondo = '#00ff00'; // Verde para temperaturas templadas (de 0°C a 24°C)
           } else if (valor < 40) {
-              colorFondo = '#ffff00'; // Amarillo para temperaturas cálidas (de 15°C a 30°C)
+              colorFondo = '#ffff00'; // Amarillo para temperaturas cálidas (de 25°C a 39°C)
           } else if (valor < 60) {
-              colorFondo = '#ff8c00'; // Naranja para temperaturas muy cálidas (de 30°C a 40°C)
+              colorFondo = '#ff8c00'; // Naranja para temperaturas muy cálidas (de 40°C a 59°C)
           } else{
-              colorFondo = '#ff0000'; // Rojo para temperaturas extremas (de 40°C a 50°C)
+              colorFondo = '#ff0000'; // Rojo para temperaturas extremas ( <60°C)
           }
 
           // Generar el HTML para el bloque con el color de fondo
-          bloquesHTML += `<div class="bloque" style="background-color:${colorFondo};"></div>`;
+          bloquesHTML += `<div class="bloque" style="background-color:${colorFondo};" temperatura=${temperatura} coordenadas=${coordenada}></div>`;
       }
   }
 
@@ -642,7 +633,7 @@ function actualizarMapaPrecipitacion() {
       for (let j = 0; j < vm.mappre[i].length; j++) {
           let valor = vm.mappre[i][j]; // Valor de precipitaciones (mm/año)
           let colorFondo;
-
+          let coordenada = vm.mapcor[i][j]
           // Determinar color de fondo basado en el valor de precipitaciones
           if (valor <= 0) {
               colorFondo = '#ffffff'; // Blanco para "Sin Precipitaciones"
@@ -656,9 +647,8 @@ function actualizarMapaPrecipitacion() {
           } else {
               colorFondo = '#00008b'; // Azul oscuro para "Muchas Precipitaciones"
           }
-
           // Generar el HTML para el bloque con el color de fondo
-          bloquesHTML += `<div class="bloque" style="background-color:${colorFondo};"></div>`;
+          bloquesHTML += `<div class="bloque" style="background-color:${colorFondo};" precipitacion=${vm.mappre[i][j]} coordenadas=${coordenada}></div>`;
       }
   }
 
@@ -675,55 +665,78 @@ function actualizarMapaBiomas() {
     oceano_polar: ["000", "001", "002", "003", "004"],
     oceano_templado: ["010", "011", "012", "013", "014", "020", "021", "022", "023", "024"],
     oceano_tropical: ["030", "031", "032", "033", "034", "040", "041", "042", "043", "044"],
-    mar_polar: ["100", "101", "102", "103", "104",
-        "200", "201", "202", "203", "204"],
-    mar_templado: ["110", "111", "112", "113", "114", 
-        "120", "121", "122", "123", "124"],
-    mar_tropical: [ "130", "131", "132", "133", "134", 
-      "140", "141", "142", "143", "144"],
+    mar_polar: ["100", "101", "102", "103", "104", "200", "201", "202", "203", "204"],
+    mar_templado: ["110", "111", "112", "113", "114", "120", "121", "122", "123", "124"],
+    mar_tropical: ["130", "131", "132", "133", "134", "140", "141", "142", "143", "144"],
     costa_templado: ["210", "211", "212", "220", "221", "222"],
     corales: ["213", "214", "223", "224"],
     costa_tropical: ["230", "231", "232", "233", "240", "241", "242", "243"],
     pantano: ["234", "244", "333", "334"],
-    zona_muerta: ["300", "340","400", "440", "500","540", "600", ],
-    tundra: ["301", "302", "303", "304", "310", "311", "312"],
-    playa: ["320", "321", "322", "330", "331", "332", "341", "342", "343"],
+    zona_muerta: ["400", "440", "500", "540", "600"],
+    tundra: ["300", "301", "302", "303", "304", "310", "311", "312"],
+    playa: ["340", "320", "321", "322", "330", "331", "332", "341", "342", "343"],
     acantilado: ["313", "314", "323", "324"],
-    selva: ["344", "433", "434", "443", "444",, "543", "544", "633", "634", "644"], 
-    estepa_fria: ["401", "402","410", "411", "412", "501", "502", "510", "511"],
-    taiga: ["403", "404","413", "414", "503", "504","512", "513", "514", "614"],
+    selva: ["344", "433", "434", "443", "444", "543", "544", "633", "634", "644"],
+    estepa_fria: ["401", "402", "410", "411", "412", "501", "502", "510", "511"],
+    taiga: ["403", "404", "413", "414", "503", "504", "512", "513", "514", "614"],
     pradera: ["420", "421", "422", "520", "521"],
     bosque: ["423", "424", "624", "522", "523", "524"],
     desierto: ["430", "441", "530", "531", "541", "542"],
     sabana: ["431", "432", "442", "532", "533", "534"],
-    montaña_glaciar: ["601", "602", "603", "604" ],
-    montaña_nevada: ["610", "611", "612", "613", "614", "622", "623"],
-    montaña: ["620", "621"],
+    montaña_glaciar: ["601", "602", "603", "604"],
+    montaña_nevada: ["611", "612", "613", "614", "622", "623"],
+    montaña: ["610", "620", "621"],
     meseta: ["630", "631", "632", "641", "642", "643"],
     volcan: ["640"],
-};
+  };
 
   for (let i = 0; i < vm.mapbio.length; i++) {
-      for (let j = 0; j < vm.mapbio[i].length; j++) {
-          let biomaID = vm.mapbio[i][j]; // Valor de bioma (por ejemplo, "000", "001", etc.)
-          let tipo = '';
+    for (let j = 0; j < vm.mapbio[i].length; j++) {
+      let biomaID = vm.mapbio[i][j]; // Valor de bioma (por ejemplo, "000", "001", etc.)
+      let tipo = '';
+      let altitud = vm.mapsmo[i][j];
+      let coordenada = vm.mapcor[i][j];
+      let temperatura = vm.maptem[i][j];
+      let precipitacion = vm.mappre[i][j];
 
-          // Encontrar el bioma correspondiente en el diccionario
-          for (const [bioma, ids] of Object.entries(biomas)) {
-              if (ids.includes(biomaID)) {
-                  tipo = bioma; // Asignar el nombre del bioma directamente
-                  break; // Salir del bucle una vez que encontramos el bioma
-              }
-          }
-
-          // Generar el HTML para el bloque con el tipo de bioma
-          bloquesHTML += `<div class="bloque ${tipo}"></div>`;
+      // Encontrar el bioma correspondiente en el diccionario
+      for (const [bioma, ids] of Object.entries(biomas)) {
+        if (ids.includes(biomaID)) {
+          tipo = bioma; // Asignar el nombre del bioma directamente
+          break; // Salir del bucle una vez que encontramos el bioma
+        }
       }
+
+      // Generar el HTML para el bloque con el tipo de bioma
+      bloquesHTML += `<div class="bloque ${tipo}" relieve="${altitud}" coordenadas="${coordenada}" temperatura="${temperatura}" precipitacion="${precipitacion}" onclick="mostrarInfo(this)"></div>`;
+    }
   }
 
   // Actualizamos el contenido del contenedor "mapa"
   mapaDiv.innerHTML = bloquesHTML;
 }
+
+// Función para mostrar información en el panel de información
+function mostrarInfo(div) {
+  // Obtener la información del div
+  const tipo = div.classList[1]; // Obtener el segundo clase que es el tipo
+  const altitud = div.getAttribute('relieve');
+  const coordenada = div.getAttribute('coordenadas');
+  const temperatura = div.getAttribute('temperatura');
+  const precipitacion = div.getAttribute('precipitacion');
+
+  // Actualizar el panel de información (suponiendo que tienes un contenedor con id 'infoPanel')
+  const infoPanel = document.getElementById('infoPanel');
+  infoPanel.innerHTML = `
+    <h3>Información del Bioma</h3>
+    <p><strong>Tipo:</strong> ${tipo}</p>
+    <p><strong>Altitud:</strong> ${altitud}</p>
+    <p><strong>Coordenadas:</strong> ${coordenada}</p>
+    <p><strong>Temperatura:</strong> ${temperatura}</p>
+    <p><strong>Precipitación:</strong> ${precipitacion}</p>
+  `;
+}
+
 
 
 

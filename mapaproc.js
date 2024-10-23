@@ -35,27 +35,6 @@ class StackVM {
     const [op, arg] = instruction;
 
     switch(op) {
-      case 'PUSH':
-        this.stack.push(arg); // Empuja un valor en la pila
-        break;
-      case 'POP':
-        this.stack.pop();     // Saca el valor de la pila
-        break;
-      case 'ADD':
-        this.binaryOp((a, b) => a + b); // Suma dos elementos
-        break;
-      case 'SUB':
-        this.binaryOp((a, b) => b - a); // Resta dos elementos
-        break;
-      case 'MUL':
-        this.binaryOp((a, b) => a * b); // Multiplica dos elementos
-        break;
-      case 'DIV':
-        this.binaryOp((a, b) => b / a); // Divide dos elementos
-        break;
-      case 'PRINT':
-        console.log(this.stack[this.stack.length - 1]); // Imprime el valor de la cima de la pila
-        break;
       case 'FILLRELIEVE':
         this.fillMapAndPushRelieve(arg); // Llenar el mapa con números aleatorios y luego hacer POP
         break;

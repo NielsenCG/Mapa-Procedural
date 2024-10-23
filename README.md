@@ -17,7 +17,7 @@ Este proyecto genera mapas procedurales en una cuadrícula de 200x200 bloques, p
 Los mapas que serán generados son:
 - Mapa 1: Mapa desde 0
 - Mapa 2: Mapa de suavizado
-- Mapa 3: Maoa de relieve
+- Mapa 3: Mapa de relieve
 - Mapa 4: Mapa de temperatura
 - Mapa 5: Mapa de precipitación
 - Mapa 6: Mapa de biomas
@@ -75,7 +75,7 @@ Intervalos de asignación de alturas:
 Para definir el mapa de temperatura, utilizamos una asignación aleatoria a los bloques, que sería la temperatura en grados Celsius:
 
 Intervalos de los grados de la temperatura:
-- Azul oscuro: Temperatura menor a -31 °C
+- Azul oscuro: Temperatura menor a -30 °C
 - Azul claro: Temperaturas entre -30°C a -1°C
 - Verde: Temperaturas entre 0°C a 24°C
 - Amarillo: Temperaturas entre 25°C a 39°C
@@ -87,15 +87,15 @@ Intervalos de los grados de la temperatura:
 Para definir el mapa de temperatura, utilizamos una asignación aleatoria entre (0 a 1750) a los bloques. Los valores superiores a 1750 serían para muchas precipitaciones:
 
 Intervalos para definir la precipitación:
-Blanco: Valor menor que 0, pero se quedaría en 0, osea que no llueve
-Amarillo: Valores de 0 a 499
-Verde claro: Valores de 500 a 1249
-Azul claro: Valores de 1250 a 1749
-Azul oscuro: Valores 1750 en adelante
+Blanco: Valor menor que 0, pero se quedaría en 0, osea que no llueve (0 mm/año)
+Amarillo: Valores de 0 a 499 mm/año
+Verde claro: Valores de 500 a 1249 mm/año
+Azul claro: Valores de 1250 a 1749 mm/año
+Azul oscuro: Valores 1750 en adelante mm/año
 
 #### Mapa 6: Mapa de biomas
 
-Este mapa forma biomas dependiendo de su relieve, temperatura y precipitación.Las asignaciones 3 variables, que se resume en un número de 3 cifras (relieve, temperatura y precipitación)
+Este mapa forma biomas dependiendo de su relieve, temperatura y precipitación.Las asignaciones 3 variables, que se resume en un número de 3 cifras (relieve, temperatura y precipitación):
 
 ###### Relieve
 - 0 – Agua profunda

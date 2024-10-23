@@ -3,13 +3,13 @@ class StackVM {
     this.stack = [];         // La pila donde se almacenan los valores
     this.programCounter = 0; // Puntero de instrucciones
     this.program = [];       // El programa (una lista de instrucciones)
-    this.mapsin = Array(200).fill(null).map(() => Array(200).fill(0)); // Matriz 200x200 (mapa) inicializada con ceros
-    this.mapsmo = Array(200).fill(null).map(() => Array(200).fill(0));
-    this.maprel = Array(200).fill(null).map(() => Array(200).fill(0)); // Matriz 200x200 (mapa) inicializada con ceros
-    this.maptem = Array(200).fill(null).map(() => Array(200).fill(0)); // Matriz 200x200 (mapa) inicializada con ceros
-    this.mappre = Array(200).fill(null).map(() => Array(200).fill(0)); // Matriz 200x200 (mapa) inicializada con ceros
-    this.mapbio = Array(200).fill(null).map(() => Array(200).fill(0)); // Matriz 200x200 (mapa) inicializada con ceros
-    this.mapcor = Array(200).fill(null).map(() => Array(200).fill(0));
+    this.mapsin = Array(200).fill(null).map(() => Array(200).fill(0)); // Matriz 200x200 (mapa) inicializada con ceros del mapa desde cero
+    this.mapsmo = Array(200).fill(null).map(() => Array(200).fill(0)); // Matriz 200x200 (mapa) inicializada con ceros del mapa de suavizado
+    this.maprel = Array(200).fill(null).map(() => Array(200).fill(0)); // Matriz 200x200 (mapa) inicializada con ceros del mapa de relieve
+    this.maptem = Array(200).fill(null).map(() => Array(200).fill(0)); // Matriz 200x200 (mapa) inicializada con ceros del mapa de temperatura
+    this.mappre = Array(200).fill(null).map(() => Array(200).fill(0)); // Matriz 200x200 (mapa) inicializada con ceros del mapa de precipitación
+    this.mapbio = Array(200).fill(null).map(() => Array(200).fill(0)); // Matriz 200x200 (mapa) inicializada con ceros del mapa de biomas
+    this.mapcor = Array(200).fill(null).map(() => Array(200).fill(0)); // Matriz 200x200 (mapa) inicializada con ceros del mapa de coordenadas
     this.currentRow = 0;     // Controla la fila actual del mapa
     this.currentCol = 0;     // Controla la columna actual del mapa
     //this.outputElement = document.getElementById('output'); // Elemento HTML para la salida
@@ -185,7 +185,7 @@ class StackVM {
   }
 
 
-  // Método para suavizar el mapa con envoltura toroidal
+  // Método para suavizar el relieve
   smoothMapRelieve(iterations) {
     const numRows = this.mapsmo.length;
     const numCols = this.mapsmo[0].length;
@@ -200,7 +200,7 @@ class StackVM {
           // Recorre los vecinos incluyendo la celda actual
           for (let i = -1; i <= 1; i++) {
             for (let j = -1; j <= 1; j++) {
-              // Envoltura toroidal
+
               const newRow = (row + i + numRows) % numRows;
               const newCol = (col + j + numCols) % numCols;
   
@@ -227,7 +227,7 @@ class StackVM {
     }
   }
 
-  // Método para suavizar el mapa con envoltura toroidal
+  // Método para suavizar la temperatura
   smoothMapTemperatura(iterations) {
     const numRows = this.maptem.length;
     const numCols = this.maptem[0].length;
@@ -242,7 +242,7 @@ class StackVM {
           // Recorre los vecinos incluyendo la celda actual
           for (let i = -1; i <= 1; i++) {
             for (let j = -1; j <= 1; j++) {
-              // Envoltura toroidal
+
               const newRow = (row + i + numRows) % numRows;
               const newCol = (col + j + numCols) % numCols;
   
@@ -268,7 +268,7 @@ class StackVM {
     }
   }
 
-  // Método para suavizar el mapa con envoltura toroidal
+  // Método para suavizar la precipitación
   smoothMapPrecipitacion(iterations) {
     const numRows = this.mappre.length;
     const numCols = this.mappre[0].length;
@@ -283,7 +283,7 @@ class StackVM {
           // Recorre los vecinos incluyendo la celda actual
           for (let i = -1; i <= 1; i++) {
             for (let j = -1; j <= 1; j++) {
-              // Envoltura toroidal
+
               const newRow = (row + i + numRows) % numRows;
               const newCol = (col + j + numCols) % numCols;
   
@@ -394,33 +394,40 @@ class StackVM {
     }
   }
 
-  // Método para procesar las coordenadas y asignar biomas usando una pila
   generateBiomeMap() {
     for (let x = 0; x < this.maprel.length; x++) {
       for (let y = 0; y < this.maprel[0].length; y++) {
+        // Inicializar this.mapbio[x][y] como una cadena vacía
+        this.mapbio[x][y] = '';
+  
         // Obtener el estado de relieve, temperatura y precipitaciones
         let reliefState = this.getReliefState(this.maprel[x][y]);
         let tempState = this.getTemperatureState(this.maptem[x][y]);
         let precipState = this.getPrecipitationState(this.mappre[x][y]);
-
+  
         // Concatenar los tres estados como un código de bioma
-        this.stack.push(`${reliefState}${tempState}${precipState}`);
-
-        // Guardar el código de bioma en el mapa de biomas
-        this.mapbio[x][y] = this.stack[this.stack.length - 1];
-        this.stack.pop();
+        this.stack.push(`${precipState}`);
+        this.stack.push(`${tempState}`);
+        this.stack.push(`${reliefState}`);
+  
+        // Suma los valores de la pila mientras los elimina
+        while (this.stack.length > 0) {
+          this.mapbio[x][y] += this.stack[this.stack.length - 1]; 
+          this.stack.pop();
+        }
       }
     }
   }
+  
 
 
 
   
 
-  // Método para imprimir en el elemento HTML de salida
+  // Método para imprimir en el elemento HTML para la salida
   printToOutput(message) {
     if (this.outputElement) {
-      this.outputElement.textContent += message + '\n'; // Agrega al <pre> con salto de línea
+      this.outputElement.textContent += message + '\n'; 
     } else {
       console.log(message);
     }
@@ -431,7 +438,7 @@ class StackVM {
 // Crear una instancia de la máquina virtual
 const vm = new StackVM();
 
-// Cargar un programa en la máquina virtual que utiliza FILLRELIEVE y SMOOTH
+// Cargar un programa en la máquina virtual que utiliza FILLRELIEVE, SMOOTHRELIEVE, FILLTEMPERATURA, SMOOTHTEMPERATURA, FILLPRECIPITACION, SMOOTHPRECIPITACION, COORGENERATOR, BIOMAGENERATOR
 vm.loadProgram([
   ['FILLRELIEVE', 40000],
   ['SMOOTHRELIEVE', 70],
@@ -448,10 +455,10 @@ vm.run();
 
 // Opcional: Imprimir el mapa suavizado (por consola)
 console.log("Mapa 200x200 de números suavizados:");
-console.log(vm.mapcor)
+console.log(vm.mapbio)
 
 
-// Esperamos a que el DOM esté completamente cargado
+// Carga el boton de "Generar mapa"
 document.addEventListener("DOMContentLoaded", function() {
   
   // Evento para ejecutar el programa VM cuando se presiona el botón "Generar Mapa"
@@ -482,7 +489,7 @@ document.addEventListener("DOMContentLoaded", function() {
             actualizarMapaPrecipitacion(); // Mapa 5: Mapa de precipitación
             break;
           case 'biomas':
-            actualizarMapaBiomas(); // Mapa 6: Mapa de biomas (deberás crear la función)
+            actualizarMapaBiomas(); // Mapa 6: Mapa de biomas 
             break;
           default:
             console.log('Tipo de mapa no reconocido');
@@ -495,7 +502,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
   
 
-  // Función que actualiza el mapa en el HTML
+  // Función que actualiza el mapa desde cero en el HTML 
   function actualizarMapaBloques() {
     const mapaDiv = document.getElementById('mapa');
     let bloquesHTML = '';
@@ -520,7 +527,7 @@ document.addEventListener("DOMContentLoaded", function() {
     mapaDiv.innerHTML = bloquesHTML;
   }
 
-  // Función que actualiza el mapa en el HTML
+  // Función que actualiza el mapa de suavizado en el HTML 
   function actualizarMapaSuavizado() {
     const mapaDiv = document.getElementById('mapa');
     let bloquesHTML = '';
@@ -545,7 +552,7 @@ document.addEventListener("DOMContentLoaded", function() {
     mapaDiv.innerHTML = bloquesHTML;
   }
 
-  // Función que actualiza el mapa en el HTML
+  // Función que actualiza el mapa de relieve en el HTML
 function actualizarMapaRelieve() {
   const mapaDiv = document.getElementById('mapa');
   let bloquesHTML = '';
@@ -602,7 +609,7 @@ function actualizarMapaTemperatura() {
           let temperatura = vm.maptem[i][j]
           // Determinar color de fondo basado en el valor de temperatura
           if (valor < -30) {
-              colorFondo = '#00008b'; // Azul oscuro para temperaturas extremadamente bajas (< -31°C)
+              colorFondo = '#00008b'; // Azul oscuro para temperaturas extremadamente bajas (< -30°C)
           } else if (valor < 0) {
               colorFondo = '#00bfff'; // Azul claro para temperaturas bajas (de -30°C a -1°C)
           } else if (valor < 25) {
@@ -612,7 +619,7 @@ function actualizarMapaTemperatura() {
           } else if (valor < 60) {
               colorFondo = '#ff8c00'; // Naranja para temperaturas muy cálidas (de 40°C a 59°C)
           } else{
-              colorFondo = '#ff0000'; // Rojo para temperaturas extremas ( <60°C)
+              colorFondo = '#ff0000'; // Rojo para temperaturas extremas ( > 60°C)
           }
 
           // Generar el HTML para el bloque con el color de fondo
@@ -656,11 +663,12 @@ function actualizarMapaPrecipitacion() {
   mapaDiv.innerHTML = bloquesHTML;
 }
 
-// Función que actualiza el mapa de precipitaciones en el HTML
+// Función que actualiza el mapa de biomas en el HTML
 function actualizarMapaBiomas() {
   const mapaDiv = document.getElementById('mapa');
   let bloquesHTML = '';
 
+  // Diccionario de los biomas con sus respectivas claves, que consiste en utilizar las variables de relieve, temperatura y precipitación
   const biomas = {
     oceano_polar: ["000", "001", "002", "003", "004"],
     oceano_templado: ["010", "011", "012", "013", "014", "020", "021", "022", "023", "024"],
@@ -694,10 +702,10 @@ function actualizarMapaBiomas() {
     for (let j = 0; j < vm.mapbio[i].length; j++) {
       let biomaID = vm.mapbio[i][j]; // Valor de bioma (por ejemplo, "000", "001", etc.)
       let tipo = '';
-      let altitud = vm.mapsmo[i][j];
+      let altitud = Math.round(vm.mapsmo[i][j]);
       let coordenada = vm.mapcor[i][j];
-      let temperatura = vm.maptem[i][j];
-      let precipitacion = vm.mappre[i][j];
+      let temperatura = parseFloat(vm.maptem[i][j].toFixed(1));
+      let precipitacion = Math.round(vm.mappre[i][j]);
 
       // Encontrar el bioma correspondiente en el diccionario
       for (const [bioma, ids] of Object.entries(biomas)) {
@@ -727,13 +735,15 @@ function mostrarInfo(div) {
 
   // Actualizar el panel de información (suponiendo que tienes un contenedor con id 'infoPanel')
   const infoPanel = document.getElementById('infoPanel');
+  infoPanel.style.display = 'block';
   infoPanel.innerHTML = `
-    <h3>Información del Bioma</h3>
+    <h3 style="margin-bottom: 10px;">Información del Bioma</h3>
     <p><strong>Tipo:</strong> ${tipo}</p>
-    <p><strong>Altitud:</strong> ${altitud}</p>
     <p><strong>Coordenadas:</strong> ${coordenada}</p>
+    <p><strong>Altitud:</strong> ${altitud}</p>
     <p><strong>Temperatura:</strong> ${temperatura}</p>
     <p><strong>Precipitación:</strong> ${precipitacion}</p>
+    <div class="bloque ${tipo}"></div>
   `;
 }
 

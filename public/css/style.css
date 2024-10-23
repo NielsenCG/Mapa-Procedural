@@ -37,14 +37,14 @@ body {
     border-right: 3px solid #7A5331; /* Borde entre el menú y el mapa */
 }
 
-/* Cargamos la fuente Poppins desde Google Fonts */
+/* Cargamos la fuente desde Google Fonts */
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap');
 
 /* Título del menú - Salida del mapa */
 .div1 h1 {
     font-family: 'Poppins', sans-serif; /* Nueva fuente estilizada */
     font-size: 26px; /* Tamaño ligeramente más grande */
-    color: #227f0b; /* Verde */
+    color: #227f0b; /* Letra de color verde */
     text-align: left;
     margin-bottom: 20px;
     font-weight: 600;
@@ -54,7 +54,7 @@ body {
     border-radius: 8px; /* Bordes suaves */
     background-color: #F5F3EF; /* Fondo blanco suave */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Sombra alrededor */
-    text-transform: uppercase; /* Texto en mayúsculas para mayor impacto */
+    text-transform: uppercase; /* Texto en mayúsculas*/
 }
 
 /* Estilos para la etiqueta y el selector del tipo de mapa */
@@ -68,7 +68,7 @@ select {
     width: 100%;
     padding: 12px;
     font-size: 14px;
-    background-color: #6E4C29; /* Marrón oscuro */
+    background-color: #6E4C29; /* Fondo de marrón oscuro */
     color: #FFF8E7; /* Color claro para el texto */
     border: none;
     border-radius: 8px;
@@ -131,6 +131,9 @@ select:hover, select:focus {
     margin-bottom: 20px;
     max-height: 70vh;
     overflow-y: auto;
+    display: none;
+    margin-top: auto;
+    margin-bottom: auto;
 }
 
 /* Estilos para el contenido dentro de #infoPanel */
@@ -161,6 +164,10 @@ select:hover, select:focus {
     grid-template-columns: repeat(200, 1fr);
     gap: 0;
     border-radius: 10px;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Estilos para los bloques dentro del mapa */
@@ -169,17 +176,14 @@ select:hover, select:focus {
     aspect-ratio: 1;
     background-size: cover;
     background-position: center;
-    transition: transform 3s ease, box-shadow 0.3s ease;
 }
 
 .bloque:hover {
-    transform: scale(30); /* Se amplía ligeramente en hover */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Sombra suave al hover */
-    z-index: 1;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Sombra suave al bloque */
     cursor: pointer;
 }
 
-/* Información emergente al pasar sobre un bloque */
+/* Información al pasar sobre un bloque */
 .informacion-bloque {
     position: absolute;
     bottom: 20px;
@@ -199,6 +203,9 @@ select:hover, select:focus {
 
 
 /* Estilos para los biomas */
+
+
+/* Texturas iniciales */
 .agua {
     background-image: url('/public/assets/agua.png');
 }
@@ -209,6 +216,7 @@ select:hover, select:focus {
     background-image: url('/public/assets/piedra.png');
 }
 
+/* Texturas de los biomas */
 .acantilado{
     background-image: url('/public/assets/acantilado.png');
 }
